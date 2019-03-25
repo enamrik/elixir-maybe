@@ -1,13 +1,20 @@
 defmodule ElixirMaybe.Maybe do
 
+  @type v :: any
+  @type v1 :: any
+  @type maybe(value) :: {:just, value} | :nothing
+
+  @spec just(v) :: maybe(v)
   def just(value) do
     {:just, value}
   end
 
+  @spec nothing() :: :nothing
   def nothing() do
     :nothing
   end
 
+  @spec from_value(v) :: maybe(v)
   def from_value(value) do
     case value do
       nil -> nothing()
@@ -15,6 +22,7 @@ defmodule ElixirMaybe.Maybe do
     end
   end
 
+  @spec map(maybe(v), (v -> v1)) :: maybe(v1)
   def map(maybe, f) do
     case maybe do
       {:just, value} -> {:just, f.(value)}
@@ -23,6 +31,7 @@ defmodule ElixirMaybe.Maybe do
     end
   end
 
+  @spec then(maybe(v), (v -> maybe(v1))) :: maybe(v1)
   def then(maybe, f) do
     case maybe do
       :nothing       -> :nothing
@@ -37,6 +46,7 @@ defmodule ElixirMaybe.Maybe do
     end
   end
 
+  @spec maybe_all([maybe(any)]) :: maybe([any])
   def maybe_all(maybes) do
 
     {value_results, _} = maybes |> eval_maybe_list
@@ -46,6 +56,7 @@ defmodule ElixirMaybe.Maybe do
        else: nothing()
   end
 
+  @spec catch_nothing(maybe(v), (-> maybe(v1))) :: maybe(v1)
   def catch_nothing(maybe, f) do
     case maybe do
       :nothing          ->
@@ -59,6 +70,7 @@ defmodule ElixirMaybe.Maybe do
     end
   end
 
+  @spec value_or_default(maybe(v), any()) :: any()
   def value_or_default(maybe, default) do
     from_maybe(
       maybe,
@@ -67,14 +79,7 @@ defmodule ElixirMaybe.Maybe do
     )
   end
 
-  def to_error(maybe, [if_nothing: error, else: just_f]) do
-    from_maybe(
-      maybe,
-      value: just_f,
-      nothing: fn-> error end
-    )
-  end
-
+  @spec from_maybe(maybe(v), [{:nothing, (-> any)} | {:value, (v -> any)}, ...]) :: any
   def from_maybe(maybe, options) do
     [value: get_f, nothing: return_f] = options
     case maybe do

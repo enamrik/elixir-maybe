@@ -3,16 +3,6 @@ defmodule ElixirMaybe.MaybeTest do
   alias ElixirMaybe.Maybe
 
   describe "Maybe" do
-    test "to_error: will return error if nothing" do
-      maybe = Maybe.nothing()
-      assert Maybe.to_error(maybe, if_nothing: "SomeError", else: fn value -> %{key: value} end) == "SomeError"
-    end
-
-    test "to_error: will map value if something" do
-      maybe = Maybe.just(1)
-      assert Maybe.to_error(maybe, if_nothing: "SomeError", else: fn value -> %{key: value} end) == %{key: 1}
-    end
-
     test "Can map nothing" do
       value = Maybe.nothing
       assert Maybe.map(value, fn x -> x + 1 end) == :nothing
